@@ -19,6 +19,37 @@ Resources:
       Value: !Ref ParamAlisAppId
 
   #
+  # パブリックチェーン
+  #
+  PublicChainAlisTokenAddress:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}PublicChainAlisTokenAddress"
+      Description: |
+        パブリックチェーンにデプロイされたALISトークンのアドレス
+      Type: String
+      Value: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    DependsOn: AlisAppId
+  PublicChainBridgeAddress:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}PublicChainBridgeAddress"
+      Description: |
+        パブリックチェーンにデプロイされたブリッジコントラクトのアドレス
+      Type: String
+      Value: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    DependsOn: PublicChainAlisTokenAddress
+  PublicChainOperationUrl:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}PublicChainOperationUrl"
+      Description: |
+        パブリックチェーン操作用URL
+      Type: String
+      Value: https://ropsten.infura.io/v3/xxxxx
+    DependsOn: PublicChainBridgeAddress
+
+  #
   # プライベートチェーン
   #
   ParityNodesAMI:
@@ -105,6 +136,15 @@ Resources:
       Type: String
       Value: "0xbbfce3c05aef921b35c7264fff21bb08f490a821"
     DependsOn: PrivateChainMainSigner
+  PrivateChainBridgeAddress:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}PrivateChainBridgeAddress"
+      Description: |
+        プライベートチェーンにデプロイされたブリッジコントラクトのアドレス
+      Type: String
+      Value: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    DependsOn: PrivateChainAlisTokenAddress
   PrivateChainOperationUrl:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -113,7 +153,7 @@ Resources:
         プライベートチェーン操作用URL
       Type: String
       Value: http://example:8545
-    DependsOn: PrivateChainAlisTokenAddress
+    DependsOn: PrivateChainBridgeAddress
   PrivateChainAwsAccessKey:
     Type: "AWS::SSM::Parameter"
     Properties:
@@ -184,6 +224,15 @@ Resources:
       Type: String
       Value: "YOURSALTHERE"
     DependsOn: BetaModeFlag
+  LoginSalt:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}LoginSalt"
+      Description: |
+        外部サービスログイン時のSalt
+      Type: String
+      Value: 'xxxxxxxxxxxxxxxxxxxxxx'
+    DependsOn: SaltForArticleId
 
   #
   # Cognito
@@ -203,6 +252,16 @@ Resources:
         一度、Cognitoを作成したあとでこの値をSSMへ設定する必要がある
       Type: String
       Value: arn:aws:cognito-idp:ap-northeast-1:090123456789:userpool/ap-northeast-1_xxxxxxxxx
+    DependsOn: CognitoUserPoolId
+  CognitoUserPoolAppId:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}CognitoUserPoolAppId"
+      Description: |
+        CognitoのアプリクライアントのアプリクライアントID
+        外部SNS認証に使用している
+      Type: String
+      Value: xxxxxxxxxxxxxxxxxxxxxxxxxxx
     DependsOn: CognitoUserPoolId
 
   #
@@ -303,14 +362,14 @@ Resources:
     Properties:
       Name: !Sub "${AWS::StackName}NotificationTableName"
       Type: String
-      Value: xxxxxdatabase-NotificationTableName-78178E48C73D
+      Value: xxxxxdatabase-Notification-78178E48C73D
     DependsOn: LikeTokenAggregationTableName
   UnreadNotificationManagerTableName:
     Type: "AWS::SSM::Parameter"
     Properties:
       Name: !Sub "${AWS::StackName}UnreadNotificationManagerTableName"
       Type: String
-      Value: xxxxxdatabase-UnreadNotificationManagerTableName-60F35E5AAFD7
+      Value: xxxxxdatabase-UnreadNotificationManager-60F35E5AAFD7
     DependsOn: NotificationTableName
   CommentTableName:
     Type: "AWS::SSM::Parameter"
@@ -355,6 +414,54 @@ Resources:
       Name: !Sub "${AWS::StackName}TipTableName"
       Type: String
       Value: xxxxxdatabase-Tip-TEST456RF65H
+  ExternalProviderUsersTableName:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}ExternalProviderUsersTableName"
+      Type: String
+      Value: xxxxxdatabase-ExternalProviderUsers-TEST456RF65H
+  UserFraudTableName:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}UserFraudTableName"
+      Type: String
+      Value: xxxxxdatabase-UserFraud-TEST456RF65H
+  ScreenedArticleTableName:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}ScreenedArticleTableName"
+      Type: String
+      Value: xxxxxdatabase-ScreenedArticle-11T1JVN14FGS7
+  TokenDistributionTableName:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}TokenDistributionTableName"
+      Type: String
+      Value: xxxxxdatabase-TokenDistribution-11T1JVN14FGS7
+  UserFirstExperienceTableName:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}UserFirstExperienceTableName"
+      Type: String
+      Value: xxxxxdatabase-UserFirstExperience-1XZRHGK7SFVYY
+  NonceTableName:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}NonceTableName"
+      Type: String
+      Value: xxxxxdatabase-Nonce-TEST456RF65H
+  PaidArticlesTableName:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}PaidArticlesTableName"
+      Type: String
+      Value: xxxxxdatabase-PaidArticles-TEST456RF65H
+  PaidStatusTableName:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}PaidStatusTableName"
+      Type: String
+      Value: xxxxxdatabase-PaidStatus-TEST456RF65H
 
   #
   # ElasticSearch
@@ -375,6 +482,147 @@ Resources:
       Value: arn:aws:iam::012345678901:role/hogeapi-LambdaRole-XXXXXXXXXXXXX
 
   #
+  # Twitter Oauth
+  #
+  TwitterConsumerKey:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}TwitterConsumerKey"
+      Description: |
+        Twitterのコンシューマーキーを指定
+      Type: String
+      Value: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  TwitterConsumerSecret:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}TwitterConsumerSecret"
+      Description: |
+        Twitterのコンシューマーシークレットを指定
+      Type: String
+      Value: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  TwitterOauthCallbackUrl:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}TwitterOauthCallbackUrl"
+      Description: |
+        TwitterのコールバックURLを指定
+      Type: String
+      Value: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+  #
+  # LINE Oauth
+  #
+  LineChannelId:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}LineChannelId"
+      Description: |
+        LINEのdeveloperアカウントのChannelId
+      Type: String
+      Value: "xxxxxxxx"
+  LineChannelSecret:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}LineChannelSecret"
+      Description: |
+        LINEのdeveloperアカウントのLineChannelSecret
+      Type: String
+      Value: "xxxxxxxxxxxxxxxx"
+    DependsOn: LineChannelId
+  LineRedirectUri:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}LineRedirectUri"
+      Description: |
+        LINEログイン時のリダイレクトURL
+      Type: String
+      Value: 'https://xxxxxxxxxxxxx'
+    DependsOn: LineChannelSecret
+  ExternalProviderLoginMark:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}ExternalProviderLoginMark"
+      Description: |
+        外部サービスでのログイン判定パラメータ
+        開発環境では規定のままでOK
+      Type: String
+      Value: 'xxxxxxxx'
+    DependsOn: LineRedirectUri
+  ExternalProviderLoginCommonTempPassword:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}ExternalProviderLoginCommonTempPassword"
+      Description: |
+        外部サービス認証に使う共通の一時パスワードを指定。各環境で独自に生成してください
+      Type: String
+      Value: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    DependsOn: ExternalProviderLoginMark
+
+  #
+  # Yahoo Oauth
+  #
+  YahooClientId:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}YahooClientId"
+      Description: |
+        Yahoo API用のClientIdを指定
+      Type: String
+      Value: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  YahooSecret:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}YahooSecret"
+      Description: |
+        Yahoo API用のSecretを指定
+      Type: String
+      Value: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  YahooOauthCallbackUrl:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}YahooOauthCallbackUrl"
+      Description: |
+        Yahoo LoginのコールバックURLを指定
+      Type: String
+      Value: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+  #
+  # Facebook Oauth
+  #
+  FacebookAppId:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}FacebookAppId"
+      Description: |
+        Facebook API用のAppIdを指定
+      Type: String
+      Value: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  FacebookAppSecret:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}FacebookAppSecret"
+      Description: |
+        Facebook API用のAppSecretを指定
+      Type: String
+      Value: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  FacebookOauthCallbackUrl:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}FacebookOauthCallbackUrl"
+      Description: |
+        Facebook LoginのコールバックURLを指定
+      Type: String
+      Value: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  FacebookAppToken:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}FacebookAppToken"
+      Description: |
+        https://developers.facebook.com/tools/accesstoken/　から取得するApp Tokenを指定
+      Type: String
+      Value: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+  #
   # Front end
   # TODO: ALIS-953
   #
@@ -393,3 +641,16 @@ Resources:
   # batch
   # FYI: batchリポジトリのSSMパラメータのみ、batchリポジトリ自身が保持しているのでそちらを参照
   #
+
+  #
+  # Rest API
+  # AWS API GatewayのArn
+  #
+  RestApiArn:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "${AWS::StackName}RestApiArn"
+      Description: |
+        serverlsss-applicationsの${ALIS_APP_ID}apiスタックで生成されたAPI GatewayリソースのARN
+      Type: String
+      Value: !Sub arn:aws:execute-api:${AWS::Region}:REPLACE_TO_END_OF_REST_API_ARN
